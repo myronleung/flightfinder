@@ -123,7 +123,7 @@ def getPrices(outboundAirport, inboundAirport, outboundDates, inboundDates, outp
                 for i in range(60):
                     time.sleep(1)
                     if i % 10 == 0:
-                        print(60-i, "more seconds...")            
+                        print(60-i, "more seconds...")
             else:
                 print(res_poll.status_code)
                 print(res_poll.headers)
