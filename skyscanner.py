@@ -8,13 +8,17 @@ from collections import namedtuple
 
 class SkyScanner:
 
-    def __init__(self, configDir='./config/', programParamsFileName='programParams.json', tripParamsFileName='tripParams.json'):
+    def __init__(self, configDir='./config/', programParamsFileName='programParams.json', tripParamsFileName='tripParams.json', verboseLogs=True):
+        # Load config files
         self.programParamsFileName = configDir+programParamsFileName
         self.tripParamsFileName = configDir+tripParamsFileName
         with open(self.programParamsFileName) as jsonProgramParams:
             self.programParams = json.load(jsonProgramParams)
         with open(self.tripParamsFileName) as jsonTripParams:
             self.tripParams = json.load(jsonTripParams)
+
+        # Create params
+        self.verboseLogs = verboseLogs
         self.sessions = []
         self.polls = []
         self.outputJsonFileName = self.programParams['outputDirectory']+'/'+self.programParams['outputJsonFileName']
@@ -55,8 +59,18 @@ class SkyScanner:
                 l = l + '|' + func(data,x)
         return l
 
+    # Print debug if verbose
+    def pv(self, *text):
+        if self.verboseLogs:
+            output = ''
+            for x in text:
+                output = output + " " + str(x)
+            print(output)
+    def setPV(self, pv):
+        self.verboseLogs = pv
+
     def getSession(self, outboundAirport, inboundAirport):
-        print('Getting session for',outboundAirport,'to',inboundAirport,'for',self.tripParams['requiredParams']['outboundDate'],'to',self.tripParams['optionalParams']['inboundDate'])
+        self.pv('Getting session for',outboundAirport,'to',inboundAirport,'for',self.tripParams['requiredParams']['outboundDate'],'to',self.tripParams['optionalParams']['inboundDate'])
         url_session = 'https://skyscanner-skyscanner-flight-search-v1.p.rapidapi.com/apiservices/pricing/v1.0'
         output = {
             'success':False,
@@ -80,16 +94,16 @@ class SkyScanner:
                 payload_session_string = k+"="+str(payload_session_json[k])
 
         # Get new session
-        print("Creating session...")
+        self.pv("Creating session...")
         while True:
             resSessionKey = requests.request("POST", url=url_session, data=payload_session_string, headers=self.programParams['sessionHeaders'])
 
             # Check for valid status codes, if found, generate session and store
             if resSessionKey.status_code in self.programParams['validStatusCodes']:
-                print("Session Created:",resSessionKey.status_code)
+                self.pv("Session Created:",resSessionKey.status_code)
                 location=resSessionKey.headers["Location"]
                 sessionKey=location[location.rfind("/")+1:len(location)]
-                print("sessionKey:",sessionKey)
+                self.pv("sessionKey:",sessionKey)
 
                 # Generate output
                 output['success'] = True
@@ -100,17 +114,17 @@ class SkyScanner:
 
             # If exceeded API limit, sleep for 1 min
             elif resSessionKey.status_code == 429:
-                print("Exceeded limit, sleeping for one minute...")
+                self.pv("Exceeded limit, sleeping for one minute...")
                 for i in range(60):
                     time.sleep(1)
                     if i % 5 == 0:
-                        print(60-i, "more seconds...")
+                        self.pv(60-i, "more seconds...")
 
             # If invalid response and limit is not exceeded, error and print error
             else:
-                print(resSessionKey.status_code)
-                print(resSessionKey.headers)
-                print(resSessionKey.text)
+                self.pv(resSessionKey.status_code)
+                self.pv(resSessionKey.headers)
+                self.pv(resSessionKey.text)
                 # resSessionKey.raise_for_status()
                 output['success'] = False
                 output['statusCode'] = resSessionKey.status_code
@@ -124,7 +138,7 @@ class SkyScanner:
         self.currentSession = sk
         # Get new data
         if self.programParams['getNewData']:
-            print('Polling for data...')
+            self.pv('Polling for data...')
             resPoll = ''
             urlPoll = 'https://skyscanner-skyscanner-flight-search-v1.p.rapidapi.com/apiservices/pricing/uk2/v1.0/'+self.currentSession
             output = {
@@ -141,7 +155,7 @@ class SkyScanner:
                 
                 # Check for valid status codes, if found, generate session and store
                 if resPoll.status_code in self.programParams['validStatusCodes']:
-                    print("Data received:", resPoll.status_code)
+                    self.pv("Data received:", resPoll.status_code)
                     output['success'] = True
                     output['statusCode'] = resPoll.status_code
                     output['headers'] = resPoll.headers
@@ -150,11 +164,11 @@ class SkyScanner:
 
                 # If exceeded API limit, sleep for 1 min
                 elif resPoll.status_code == 429:
-                    print('Exceeded limit, sleeping for one minute...')
+                    self.pv('Exceeded limit, sleeping for one minute...')
                     for i in range(60):
                         time.sleep(1)
                         if i % 5 == 0:
-                            print(60-i, 'more seconds...')
+                            self.pv(60-i, 'more seconds...')
 
                 # If invalid response and limit is not exceeded, error and print error
                 else:
@@ -179,7 +193,7 @@ class SkyScanner:
             return header
 
     def printPolls(self, data):
-        print('Printing data...')
+        self.pv('Printing data...')
         header = self.printOutputFileHeaders()
         with open(self.outputCsvFileName, mode='a', newline = '') as outputCsv:
             itineraryWriter = csv.writer(outputCsv, delimiter=',')
