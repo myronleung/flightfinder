@@ -8,14 +8,15 @@ from collections import namedtuple
 
 class SkyScanner:
 
-    def __init__(self, configFileName='config.json'):
-        self.configFileName = configFileName
-        with open(self.configFileName) as jsonFile:
-            self.config = json.load(jsonFile)
+    def __init__(self, configDir='./config/', programParamsFileName='programParams.json', tripParamsFileName='tripParams.json'):
+        self.programParamsFileName = configDir+programParamsFileName
+        self.tripParamsFileName = configDir+tripParamsFileName
+        with open(self.programParamsFileName) as jsonProgramParams:
+            self.programParams = json.load(jsonProgramParams)
+        with open(self.tripParamsFileName) as jsonTripParams:
+            self.tripParams = json.load(jsonTripParams)
         self.sessions = []
         self.polls = []
-        self.tripParams = self.config['tripParams']
-        self.programParams = self.config['programParams']
         self.outputJsonFileName = self.programParams['outputDirectory']+'/'+self.programParams['outputJsonFileName']
         self.outputCsvFileName = self.programParams['outputDirectory']+'/'+self.programParams['outputCsvFileName']
         self.currentSession = ''
@@ -216,15 +217,3 @@ class SkyScanner:
                     for h in header:
                         row.append(option[h])
                     itineraryWriter.writerow(row)
-
-
-# Sample session: c086af04-75fb-4b88-871a-acdcfc196e7f
-ss = SkyScanner('config.json')
-
-sessionOutput = ss.getSession('LAX','PEK')
-print(sessionOutput)
-
-pollsOutput = ss.getPolls(sessionOutput['body'])
-# print(pollsOutput)
-
-ss.printPolls(pollsOutput['body'])
