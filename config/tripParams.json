@@ -19,7 +19,7 @@
     },
     "cityGroups":[
         {
-            "groupOrder":0,
+            "groupIndex":0,
             "groupLabel":"United States",
             "cities":[
                 "LAX",
@@ -45,7 +45,7 @@
             "outboundDateMargin":0,
             "inboundDateMargin":0
         },{
-            "groupOrder":1,
+            "groupIndex":1,
             "groupLabel":"China",
             "cities":[
                 "PEK",
@@ -62,7 +62,7 @@
             "outboundDateMargin":0,
             "inboundDateMargin":0
         },{
-            "groupOrder":2,
+            "groupIndex":2,
             "groupLabel":"Japan",
             "cities":[
                 "NRT",
@@ -80,7 +80,7 @@
             "outboundDateMargin":0,
             "inboundDateMargin":0
         },{
-            "groupOrder":3,
+            "groupIndex":3,
             "groupLabel":"United States",
             "cities":[
                 "LAX",

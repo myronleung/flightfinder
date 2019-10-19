@@ -64,7 +64,7 @@ class SkyScanner:
         if self.verboseLogs:
             output = ''
             for x in text:
-                output = output + " " + str(x)
+                output = str(output) + " " + str(x)
             print(output)
     def setPV(self, pv):
         self.verboseLogs = pv
