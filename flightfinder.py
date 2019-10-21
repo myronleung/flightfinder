@@ -11,6 +11,8 @@ class FlightFinder:
         self.verboseLogs = verboseLogs
         
         self.legs = []
+        self.routes = [] #Array of city groups
+        self.cityGroups = self.skyscanner.tripParams['cityGroups']
         self.pv('FlighFinder initiated successfully')
 
     def generateLegs(self):
@@ -62,8 +64,51 @@ class FlightFinder:
         # self.pv('Legs Generated:', status)
 
     def generateRoutes(self):
+        routes = []
         
+        # create log file
+        # with open('./logs/recursion_log.csv', mode='w', newline='') as logCsv:
+        #     logWriter = csv.writer(logCsv, delimiter=',')
+        #     header = ['layer', 'g', 'currentPath','routes']
+        #     logWriter.writerow(header)
+            
+        self.generateNextRoute([], routes, 0)
+
+        with open('./logs/recursion_log.csv', mode='w', newline='') as logCsv:
+            logWriter = csv.writer(logCsv, delimiter=',')
+            for r in routes:
+                logWriter.writerow(r)
         
+    
+    def generateNextRoute(self, cp, routes, index):
+
+        for g, group in enumerate(self.cityGroups):
+            
+            # Create a branch representing where on the path we are
+            currentPath = cp.copy()
+            # Create a test route and determine if it has all city groups
+            route = cp.copy()
+            if self.notInCurrentPath(g, currentPath):
+                route.append(g)
+                # Append to routes if last layer
+                if len(self.cityGroups) - 1 == index and len(route) == len(self.cityGroups):
+                    routes.append(route)
+                    return
+                else:
+                    currentPath.append(g)
+            
+            
+
+            # with open('./logs/recursion_log.csv', mode='a', newline='') as logCsv:
+            #     logWriter = csv.writer(logCsv, delimiter=',')
+            #     row = [index, g, currentPath, routes]
+            #     logWriter.writerow(row)
+
+            # proceed to next layer if not already on the last layer
+            if len(self.cityGroups) - 1 > index:
+                self.generateNextRoute(currentPath, routes, index + 1)
+
+
     def testSkyScanner(self):
         sessionOutput = self.skyscanner.getSession('LAX','PEK')
         self.pv(sessionOutput)
@@ -74,6 +119,17 @@ class FlightFinder:
         self.skyscanner.printPolls(pollsOutput['body']) 
         
     
+    # Check if paramter route is already in route
+    def notInCurrentPath(self, x, currentPath):
+        for p in currentPath:
+            if x == p:
+                return False
+        return True
+
+    def notLastInGroup(self, groupid):
+        if len(self.cityGroups)-1 == groupid:
+            return False
+        return True
 
     # Print debug if verbose
     def pv(self, *text):

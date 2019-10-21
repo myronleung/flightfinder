@@ -39,7 +39,7 @@
                 "DTW",
                 "LGA"
             ],
-            "flexible":"False",
+            "orderFlexible":0,
             "outboundDate":"",
             "inboundDate":"",
             "outboundDateMargin":0,
@@ -56,7 +56,7 @@
                 "SZX",
                 "CTU"
             ],
-            "orderFlexible":"True",
+            "orderorderFlexible":1,
             "outboundDate":"",
             "inboundDate":"",
             "outboundDateMargin":0,
@@ -74,7 +74,7 @@
                 "ITM",
                 "NGO"
             ],
-            "orderFlexible":"True",
+            "orderorderFlexible":1,
             "outboundDate":"",
             "inboundDate":"",
             "outboundDateMargin":0,
@@ -100,7 +100,7 @@
                 "DTW",
                 "LGA"
             ],
-            "flexible":"False",
+            "orderFlexible":0,
             "outboundDate":"",
             "inboundDate":"",
             "outboundDateMargin":0,

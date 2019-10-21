@@ -26,7 +26,7 @@
                 "03",
                 "04"
             ],
-            "orderFlexible":0,
+            "flexible":"False",
             "outboundDate":"",
             "inboundDate":"",
             "outboundDateMargin":0,
@@ -39,7 +39,7 @@
                 "13",
                 "14"
             ],
-            "orderFlexible":1,
+            "flexible":"True",
             "outboundDate":"",
             "inboundDate":"",
             "outboundDateMargin":0,
@@ -52,7 +52,7 @@
                 "23",
                 "24"
             ],
-            "orderFlexible":1,
+            "flexible":"True",
             "outboundDate":"",
             "inboundDate":"",
             "outboundDateMargin":0,
@@ -65,7 +65,7 @@
                 "33",
                 "34"
             ],
-            "orderFlexible":1,
+            "flexible":"False",
             "outboundDate":"",
             "inboundDate":"",
             "outboundDateMargin":0,
