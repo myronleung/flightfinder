@@ -70,6 +70,19 @@
             "inboundDate":"",
             "outboundDateMargin":0,
             "inboundDateMargin":0
+        },{
+            "groupLabel":"4",
+            "cities":[
+                "41",
+                "42",
+                "43",
+                "44"
+            ],
+            "orderFlexible":0,
+            "outboundDate":"",
+            "inboundDate":"",
+            "outboundDateMargin":0,
+            "inboundDateMargin":0
         }
     ]
 }

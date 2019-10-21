@@ -88,7 +88,7 @@ class FlightFinder:
             currentPath = cp.copy()
             # Create a test route and determine if it has all city groups
             route = cp.copy()
-            if self.notInCurrentPath(g, currentPath):
+            if self.notInCurrentPath(g, currentPath) and (group['orderFlexible'] == 1 or (group['orderFlexible'] == 0 and index == g)):
                 route.append(g)
                 # Append to routes if last layer
                 if len(self.cityGroups) - 1 == index and len(route) == len(self.cityGroups):
