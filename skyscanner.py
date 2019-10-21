@@ -121,6 +121,7 @@ class SkyScanner:
             # If exceeded API limit, sleep for 1 min
             elif resSessionKey.status_code == 429:
                 self.pv("Exceeded limit, sleeping for one minute...")
+                self.pv('resPoll:',resSessionKey.status_code, resSessionKey.headers, resSessionKey.text)
                 for i in range(60):
                     time.sleep(1)
                     if i % 5 == 0:
@@ -140,11 +141,12 @@ class SkyScanner:
 
         return output
 
-    def getPolls(self, sk):
+    def getPolls(self, sk, testApi):
+        
         self.currentSession = sk
         # Get new data
         if self.programParams['getNewData']:
-            self.pv('Polling for data...')
+            self.pv('Polling for session key',sk,'...')
             resPoll = ''
             urlPoll = 'https://skyscanner-skyscanner-flight-search-v1.p.rapidapi.com/apiservices/pricing/uk2/v1.0/'+self.currentSession
             output = {
@@ -155,6 +157,9 @@ class SkyScanner:
             }
 
             while True:
+                if not(testApi):
+                    output['body'] = urlPoll
+                    break
                 # Create request
                 querystring = {"sortType":"price*","sortOrder":"asc","pageIndex":"0","pageSize":self.programParams['responseSize']}
                 resPoll = requests.request("GET", url=urlPoll, headers=self.programParams['sessionHeaders'], params=querystring)
@@ -171,6 +176,7 @@ class SkyScanner:
                 # If exceeded API limit, sleep for 1 min
                 elif resPoll.status_code == 429:
                     self.pv('Exceeded limit, sleeping for one minute...')
+                    self.pv('resPoll:',resPoll)
                     for i in range(60):
                         time.sleep(1)
                         if i % 5 == 0:
@@ -216,24 +222,27 @@ class SkyScanner:
                     option["OB Destination"] = self.getPlaces(data, oleg.DestinationStation)
                     option["OB Stops"] = self.getAll(oleg.Stops, self.getPlaces, data)
                     option["OB Carriers"] = self.getAll(oleg.Carriers, self.getCarriers, data)
-                    option["`OB Operating Carriers"] = self.getAll(oleg.OperatingCarriers, self.getCarriers, data)
+                    option["OB Operating Carriers"] = self.getAll(oleg.OperatingCarriers, self.getCarriers, data)
                     option["OB Departure Time"] = oleg.Departure
                     option["OB Arrival Time"] = oleg.Arrival
                     option["OB Duration HR"] = int(oleg.Duration / 60)
                     option["OB Duration MIN"] = oleg.Duration % 60
-                    option["OB Inbound Leg"] = i.InboundLegId
-                    ileg = self.getLeg(data, i.InboundLegId)
-                    option["IB Origin"] = self.getPlaces(data, ileg.OriginStation)
-                    option["IB Destination"] = self.getPlaces(data, ileg.DestinationStation)
-                    option["IB Stops"] = self.getAll(ileg.Stops, self.getPlaces, data)
-                    option["IB Carriers"] = self.getAll(ileg.Carriers, self.getCarriers, data)
-                    option["IB Operating Carriers"] = self.getAll(ileg.OperatingCarriers, self.getCarriers, data)
-                    option["IB Departure Time"] = ileg.Departure
-                    option["IB Arrival TIme"] = ileg.Arrival
-                    option["IB Duration HR"] = int(ileg.Duration / 60)
-                    option["IB Duration MIN"] = ileg.Duration % 60
+                    if hasattr(i, 'InboundLegId'):
+                        option["OB Inbound Leg"] = i.InboundLegId
+                        ileg = self.getLeg(data, i.InboundLegId)
+                        option["IB Origin"] = self.getPlaces(data, ileg.OriginStation)
+                        option["IB Destination"] = self.getPlaces(data, ileg.DestinationStation)
+                        option["IB Stops"] = self.getAll(ileg.Stops, self.getPlaces, data)
+                        option["IB Carriers"] = self.getAll(ileg.Carriers, self.getCarriers, data)
+                        option["IB Operating Carriers"] = self.getAll(ileg.OperatingCarriers, self.getCarriers, data)
+                        option["IB Departure Time"] = ileg.Departure
+                        option["IB Arrival TIme"] = ileg.Arrival
+                        option["IB Duration HR"] = int(ileg.Duration / 60)
+                        option["IB Duration MIN"] = ileg.Duration % 60
                     option["Price"] = po.Price
                     option["Link"] = po.DeeplinkUrl
                     for h in header:
-                        row.append(option[h])
+                        print('printing:',h)
+                        if hasattr(i, h):
+                            row.append(option[h])
                     itineraryWriter.writerow(row)

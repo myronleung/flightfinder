@@ -5,15 +5,18 @@ from skyscanner import SkyScanner
 
 class FlightFinder:
 
-    def __init__(self, sk=SkyScanner(tripParamsFileName='tripParams_test.json'), verboseLogs=True):
+    def __init__(self, sk=SkyScanner(tripParamsFileName='tripParams_test2.json'), verboseLogs=True):
         # Create params
         self.skyscanner = sk
         self.skyscanner.setPV(verboseLogs)
         self.verboseLogs = verboseLogs
+        self.testSessionApi = True
+        self.testPollApi = True
         
         self.legs = [] # From city group to city group
         self.legOptions = [] # From city to city
         self.routes = [] #Array of city groups
+        self.priceOptions = []
         self.cityGroups = self.skyscanner.tripParams['cityGroups']
         self.pv('FlighFinder initiated successfully')
 
@@ -103,7 +106,7 @@ class FlightFinder:
                 for lot, legOptionTo in enumerate(self.cityGroups[leg['to']]['cities']):
                     print('getting prices for', legOptionFrom,'to',legOptionTo)
                     # Get Sessions
-                    session = self.skyscanner.getSession(legOptionFrom,legOptionTo,leg['fromDate'],leg['toDate'],False)
+                    session = self.skyscanner.getSession(legOptionFrom,legOptionTo,leg['fromDate'],leg['toDate'],self.testSessionApi)
                     # add option sessions
                     self.legOptions.append({
                         'fromId':lof,
@@ -115,9 +118,24 @@ class FlightFinder:
                         'session':session
                     })
                     
-
         # write leg option log
         self.createLog('./logs/legOptions_log.csv',self.legOptions)
+
+    def getPriceOptions(self, overrideSessionKey = ''):
+        self.skyscanner.printOutputFileHeaders()
+        if overrideSessionKey == '':
+            for lo, legOption in enumerate(self.legOptions):
+                print('polling:',legOption['session']['body'])
+                option = self.skyscanner.getPolls(legOption['session']['body'],self.testPollApi)
+                print('option:',option)
+                self.skyscanner.printPolls(option['body'])
+                self.priceOptions.append(option['body'])
+        else:
+            option = self.skyscanner.getPolls(overrideSessionKey,self.testPollApi)
+            self.skyscanner.printPolls(option['body'])
+
+        # write price options to file
+        # self.createLog('./logs/priceOptions_log.csv',self.priceOptions)
 
 
     def generateRoutes(self):
@@ -205,5 +223,5 @@ class FlightFinder:
                 for o, obj in enumerate(objs):
                     row = []
                     for i, k in enumerate(obj):
-                        row.append(obj[k])
+                        row.append(str(obj[k]))
                     logWriter.writerow(row)

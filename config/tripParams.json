@@ -40,10 +40,10 @@
                 "LGA"
             ],
             "orderFlexible":0,
-            "outboundDate":"",
+            "outboundDate":"2019-12-20",
             "inboundDate":"",
-            "outboundDateMargin":0,
-            "inboundDateMargin":0
+            "lengthOfStay":0,
+            "lengthOfStayMargin":0
         },{
             "groupIndex":1,
             "groupLabel":"China",
@@ -59,8 +59,8 @@
             "orderFlexible":1,
             "outboundDate":"",
             "inboundDate":"",
-            "outboundDateMargin":0,
-            "inboundDateMargin":0
+            "lengthOfStay":7,
+            "lengthOfStayMargin":1
         },{
             "groupIndex":2,
             "groupLabel":"Japan",
@@ -77,8 +77,8 @@
             "orderFlexible":1,
             "outboundDate":"",
             "inboundDate":"",
-            "outboundDateMargin":0,
-            "inboundDateMargin":0
+            "lengthOfStay":7,
+            "lengthOfStayMargin":1
         },{
             "groupIndex":3,
             "groupLabel":"United States",
@@ -102,9 +102,9 @@
             ],
             "orderFlexible":0,
             "outboundDate":"",
-            "inboundDate":"",
-            "outboundDateMargin":0,
-            "inboundDateMargin":0
+            "inboundDate":"2020-01-04",
+            "lengthOfStay":0,
+            "lengthOfStayMargin":0
         }
     ]
 }

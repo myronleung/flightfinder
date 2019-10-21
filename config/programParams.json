@@ -8,6 +8,6 @@
     "outputJsonFileName":"output.json",
     "outputCsvFileName":"output.csv",
     "getNewData":"True",
-    "responseSize":20,
+    "responseSize":1,
     "validStatusCodes":[200,201]
 }

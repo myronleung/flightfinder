@@ -20,9 +20,7 @@
             "groupIndex":0,
             "groupLabel":"United States",
             "cities":[
-                "LAX",
-                "SFO",
-                "SEA"
+                "LAX"
             ],
             "orderFlexible":0,
             "outboundDate":"2019-12-20",
@@ -30,38 +28,10 @@
             "lengthOfStay":0,
             "lengthOfStayMargin":0
         },{
-            "groupIndex":1,
-            "groupLabel":"China",
-            "cities":[
-                "PEK",
-                "CSX",
-                "HKG"
-            ],
-            "orderFlexible":1,
-            "outboundDate":"",
-            "inboundDate":"",
-            "lengthOfStay":6,
-            "lengthOfStayMargin":1
-        },{
-            "groupIndex":2,
-            "groupLabel":"Japan",
-            "cities":[
-                "NRT",
-                "HND",
-                "CTS"
-            ],
-            "orderFlexible":1,
-            "outboundDate":"",
-            "inboundDate":"",
-            "lengthOfStay":7,
-            "lengthOfStayMargin":1
-        },{
             "groupIndex":3,
             "groupLabel":"United States",
             "cities":[
-                "LAX",
-                "SFO",
-                "SEA"
+                "NRT"
             ],
             "orderFlexible":0,
             "outboundDate":"",
