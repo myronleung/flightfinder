@@ -1,5 +1,6 @@
 import json
 import csv
+from datetime import datetime, timedelta
 from skyscanner import SkyScanner
 
 class FlightFinder:
@@ -10,70 +11,130 @@ class FlightFinder:
         self.skyscanner.setPV(verboseLogs)
         self.verboseLogs = verboseLogs
         
-        self.legs = []
+        self.legs = [] # From city group to city group
+        self.legOptions = [] # From city to city
         self.routes = [] #Array of city groups
         self.cityGroups = self.skyscanner.tripParams['cityGroups']
         self.pv('FlighFinder initiated successfully')
 
     def generateLegs(self):
-        self.pv('Generating Legs')
-        # Recursion
-        # status = self.generateLegCombinations(
-        #     groups=self.skyscanner.tripParams["cityGroups"],
-        #     currentGroup=0,
-        #     numGroups=len(self.skyscanner.tripParams["cityGroups"])
-        #     )
+        self.pv('Generating legs...')
+        legCenters = []
+        # Generate legs based off of routes
+        for r, route in enumerate(self.routes):
+            for g, group in enumerate(route):
+                marginCenter = ''
+                
+                # check to see if last segment and has inbound date
+                if g+1 >= len(route):
+                    break
+                
+                # Check if next group only has inbound date
+                # NHI: Next Has Inbound
+                if self.cityGroups[g+1]['inboundDate'] != '' and self.cityGroups[g+1]['outboundDate'] == '':
+                    # back out one day, use as outbound date
+                    marginCenter = datetime.strptime(self.cityGroups[g+1]['inboundDate'], '%Y-%m-%d') - timedelta(days=1)
+                    # convert marginCenter back to string
+                    marginCenter = datetime.strftime(marginCenter,'%Y-%m-%d')
+                    legCenters.append({
+                        'dateDeterminationType':'NHI',
+                        'marginCenter':marginCenter,
+                        'from':route[g],
+                        'to':route[g+1],
+                    })
+                # Check if current group has outbound date
+                # Current Has Outbound
+                elif self.cityGroups[g]['outboundDate'] != '':
+                    marginCenter = self.cityGroups[g]['outboundDate']
+                    legCenters.append({
+                        'dateDeterminationType':'CHO',
+                        'marginCenter':marginCenter,
+                        'from':route[g],
+                        'to':route[g+1],
+                    })
+                # otherwise current group is based on length of stay
+                # LOS: Length of Stay
+                else:
+                    # Get previous leg marginCenter
+                    prevMarginCenter = legCenters[g-1]['marginCenter']
+                    # convert to datetime
+                    prevMarginCenter = datetime.strptime(prevMarginCenter, '%Y-%m-%d')
+                    # add lengthOfStay
+                    marginCenter = prevMarginCenter + timedelta(days=self.cityGroups[g]['lengthOfStay'])
+                    # convert back to string
+                    marginCenter = datetime.strftime(marginCenter,'%Y-%m-%d')
+                    legCenters.append({
+                        'dateDeterminationType':'LOS',
+                        'marginCenter':marginCenter,
+                        'from':route[g],
+                        'to':route[g+1],
+                    })
 
-        # Iteration
-        # Get flexibly city group labels
-        flexCityGroups = []
-        for i, cg in enumerate(self.skyscanner.tripParams['cityGroups']):
-            if cg['flexible'] == "True":
-                flexCityGroups.append(i)
+        self.createLog('./logs/legCenters_log.csv',legCenters)
 
-        for i, group in enumerate(self.skyscanner.tripParams['cityGroups']):
-            self.pv(str(i)+'/'+str(len(self.skyscanner.tripParams['cityGroups'])-1)+':', group['cities'])
-            # Create list of destination city groups. Must include all flexible city groups
-            destinationCityGroup = []
+        # Loop through leg options to add margins
+        for lc, legCenter in enumerate(legCenters):
+            groupIndex = legCenter['from']
+            groupMargin = self.cityGroups[groupIndex]['lengthOfStayMargin']
+            marginStart = datetime.strptime(legCenter['marginCenter'],'%Y-%m-%d')-timedelta(days=groupMargin)
+            # Check against NHI margin instead of outbound margin if NHI
+            if legCenter['dateDeterminationType'] == 'NHI':
+                groupIndex = legCenter['to']
+                groupMargin = self.cityGroups[groupIndex]['lengthOfStayMargin']
+                marginStart = datetime.strptime(legCenter['marginCenter'],'%Y-%m-%d')-timedelta(days=groupMargin)
 
-            # group is a lsit of all city groups
-            for city in group['cities']:
+            for m in range(groupMargin*2+1):
+                marginStart = marginStart + timedelta(1)
+                fromDate = datetime.strftime(marginStart,'%Y-%m-%d')
+                self.legs.append({
+                    'from':legCenter['from'],
+                    'to':legCenter['to'],
+                    'fromDate':fromDate,
+                    'toDate':''
+                })
+        
+        self.createLog('./logs/legs_log.csv',self.legs)
 
-                # flexCityGroup is the list of city group indexes that can be moved out of order
-                for fCityGroup in flexCityGroups:
+    def getLegPriceOptionsSessions(self):
+        self.pv('Getting price options...')
+        for l, leg in enumerate(self.legs):
+            # get prices for each city group combination
+            for lof, legOptionFrom in enumerate(self.cityGroups[leg['from']]['cities']):
+                for lot, legOptionTo in enumerate(self.cityGroups[leg['to']]['cities']):
+                    print('getting prices for', legOptionFrom,'to',legOptionTo)
+                    # Get Sessions
+                    session = self.skyscanner.getSession(legOptionFrom,legOptionTo,leg['fromDate'],leg['toDate'],False)
+                    # add option sessions
+                    self.legOptions.append({
+                        'fromId':lof,
+                        'fromName':legOptionFrom,
+                        'toId':lot,
+                        'fromDate':leg['fromDate'],
+                        'toName':legOptionTo,
+                        'toDate':leg['toDate'],
+                        'session':session
+                    })
                     
-                    # do not match to self city group
-                    # this conditional defines which city group is eligible to be in the next city group. Conditions are:
-                        # current city will not generate route to self
-                        # current city is not last city in city groups -- This may need to change later, may need to move up a couple levels
-                        # last city is not flexible
-                    # i is the index of the current city group flightfinder is analyzing
-                    if i != fCityGroup and i != len(self.skyscanner.tripParams['cityGroups'])-1 and group['flexible'] != "False":
 
-                        # match cities against each eligible fCity Group
-                        # loop through city in the flex city group
-                        for fCity in self.skyscanner.tripParams['cityGroups'][fCityGroup]['cities']:
-                            # print(city, "->", fCity)
-                            self.legs.append({
-                                'from':city,
-                                'to': fCity
-                            })
+        # write leg option log
+        self.createLog('./logs/legOptions_log.csv',self.legOptions)
 
-            # Create dict for each pair
-
-        # self.pv('Legs Generated:', status)
 
     def generateRoutes(self):
-        routes = []
-            
-        self.generateNextRoute([], routes, 0)
+        self.pv('Generating routes...')
+        self.generateNextRoute([], 0)
 
-        with open('./logs/recursion_log.csv', mode='w', newline='') as logCsv:
-            logWriter = csv.writer(logCsv, delimiter=',')
-            for r in routes:
-                logWriter.writerow(r)
+        # write route combination log
+        if self.verboseLogs:
+            with open('./logs/recursion_log.csv', mode='w', newline='') as logCsv:
+                logWriter = csv.writer(logCsv, delimiter=',')
+                for r, route in enumerate(self.routes):
+                    row = []
+                    for g, group in enumerate(route):
+                        row.append(str(g)+': '+self.cityGroups[g]['groupLabel'])
+                    logWriter.writerow(row)
         
-    def generateNextRoute(self, cp, routes, index):
+    def generateNextRoute(self, cp, index):
 
         for g, group in enumerate(self.cityGroups):
             
@@ -85,14 +146,14 @@ class FlightFinder:
                 route.append(g)
                 # Append to routes if last layer
                 if len(self.cityGroups) - 1 == index and len(route) == len(self.cityGroups):
-                    routes.append(route)
+                    self.routes.append(route)
                     return
                 else:
                     currentPath.append(g)
 
             # proceed to next layer if not already on the last layer
             if len(self.cityGroups) - 1 > index:
-                self.generateNextRoute(currentPath, routes, index + 1)
+                self.generateNextRoute(currentPath, index + 1)
 
 
     def testSkyScanner(self):
@@ -112,6 +173,18 @@ class FlightFinder:
                 return False
         return True
 
+    # Given a date range, create list of applicable dates
+    def getDateRanges(self, date, margin):
+        # parse date into calculatable field
+        dateObject = datetime.strptime(date, '%Y-%m-%d')
+        output = []
+        startDate = dateObject - timedelta(days=margin)
+        for m in range(margin*2+1):
+            output.append(datetime.strftime(startDate+timedelta(days=m),'%Y-%m-%d'))
+            print(output)
+        
+        return m
+
     # Print debug if verbose
     def pv(self, *text):
         if self.verboseLogs:
@@ -119,3 +192,18 @@ class FlightFinder:
             for x in text:
                 output = str(output) + " " + str(x)
             print(output)
+
+    # create log
+    def createLog(self, logFileName, objs):
+        if self.verboseLogs:
+            with open(logFileName, mode='w', newline='') as logCsv:
+                logWriter=csv.writer(logCsv, delimiter=',')
+                header = []
+                for i, k in enumerate(objs[0]):
+                    header.append(k)
+                logWriter.writerow(header)
+                for o, obj in enumerate(objs):
+                    row = []
+                    for i, k in enumerate(obj):
+                        row.append(obj[k])
+                    logWriter.writerow(row)

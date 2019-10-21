@@ -56,7 +56,7 @@
                 "SZX",
                 "CTU"
             ],
-            "orderorderFlexible":1,
+            "orderFlexible":1,
             "outboundDate":"",
             "inboundDate":"",
             "outboundDateMargin":0,
@@ -74,7 +74,7 @@
                 "ITM",
                 "NGO"
             ],
-            "orderorderFlexible":1,
+            "orderFlexible":1,
             "outboundDate":"",
             "inboundDate":"",
             "outboundDateMargin":0,

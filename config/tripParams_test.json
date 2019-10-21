@@ -5,11 +5,9 @@
         "locale":"en-US",
         "originPlace":"",
         "destinationPlace":"" ,
-        "outboundDate":"2019-12-20",
         "adults":2
     },
     "optionalParams":{
-        "inboundDate":"2020-01-04",
         "cabinClass":"economy",
         "children":0,
         "infants":0,
@@ -19,70 +17,57 @@
     },
     "cityGroups":[
         {
-            "groupLabel":"0",
+            "groupIndex":0,
+            "groupLabel":"United States",
             "cities":[
-                "01",
-                "02",
-                "03",
-                "04"
+                "LAX",
+                "SFO",
+                "SEA"
+            ],
+            "orderFlexible":0,
+            "outboundDate":"2019-12-20",
+            "inboundDate":"",
+            "lengthOfStay":0,
+            "lengthOfStayMargin":0
+        },{
+            "groupIndex":1,
+            "groupLabel":"China",
+            "cities":[
+                "PEK",
+                "CSX",
+                "HKG"
+            ],
+            "orderFlexible":1,
+            "outboundDate":"",
+            "inboundDate":"",
+            "lengthOfStay":6,
+            "lengthOfStayMargin":1
+        },{
+            "groupIndex":2,
+            "groupLabel":"Japan",
+            "cities":[
+                "NRT",
+                "HND",
+                "CTS"
+            ],
+            "orderFlexible":1,
+            "outboundDate":"",
+            "inboundDate":"",
+            "lengthOfStay":7,
+            "lengthOfStayMargin":1
+        },{
+            "groupIndex":3,
+            "groupLabel":"United States",
+            "cities":[
+                "LAX",
+                "SFO",
+                "SEA"
             ],
             "orderFlexible":0,
             "outboundDate":"",
-            "inboundDate":"",
-            "outboundDateMargin":0,
-            "inboundDateMargin":0
-        },{
-            "groupLabel":"1",
-            "cities":[
-                "11",
-                "12",
-                "13",
-                "14"
-            ],
-            "orderFlexible":1,
-            "outboundDate":"",
-            "inboundDate":"",
-            "outboundDateMargin":0,
-            "inboundDateMargin":0
-        },{
-            "groupLabel":"2",
-            "cities":[
-                "21",
-                "22",
-                "23",
-                "24"
-            ],
-            "orderFlexible":1,
-            "outboundDate":"",
-            "inboundDate":"",
-            "outboundDateMargin":0,
-            "inboundDateMargin":0
-        },{
-            "groupLabel":"3",
-            "cities":[
-                "31",
-                "32",
-                "33",
-                "34"
-            ],
-            "orderFlexible":1,
-            "outboundDate":"",
-            "inboundDate":"",
-            "outboundDateMargin":0,
-            "inboundDateMargin":0
-        },{
-            "groupLabel":"4",
-            "cities":[
-                "41",
-                "42",
-                "43",
-                "44"
-            ],
-            "orderFlexible":0,
-            "outboundDate":"",
-            "inboundDate":"",
-            "outboundDateMargin":0,
-            "inboundDateMargin":0
+            "inboundDate":"2019-01-04",
+            "lengthOfStay":0,
+            "lengthOfStayMargin":0
         }
     ]
 }

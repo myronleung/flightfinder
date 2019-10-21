@@ -69,8 +69,8 @@ class SkyScanner:
     def setPV(self, pv):
         self.verboseLogs = pv
 
-    def getSession(self, outboundAirport, inboundAirport):
-        self.pv('Getting session for',outboundAirport,'to',inboundAirport,'for',self.tripParams['requiredParams']['outboundDate'],'to',self.tripParams['optionalParams']['inboundDate'])
+    def getSession(self, outboundAirport, inboundAirport, outboundDate = '', inboundDate = '', testApi = True):
+        self.pv('Getting session for',outboundAirport,'to',inboundAirport,'for',outboundDate,'to',inboundDate)
         url_session = 'https://skyscanner-skyscanner-flight-search-v1.p.rapidapi.com/apiservices/pricing/v1.0'
         output = {
             'success':False,
@@ -80,10 +80,13 @@ class SkyScanner:
         }
 
         # Generate payload
-        payload_session_json = self.tripParams['requiredParams']
+        payload_session_json = {}
+        payload_session_json.update(self.tripParams['requiredParams'])
         payload_session_json.update(self.tripParams['optionalParams'])
+        payload_session_json.update({'outboundDate':outboundDate,'inboundDate':inboundDate})
         payload_session_json['originPlace'] = outboundAirport+'-sky'
         payload_session_json['destinationPlace'] = inboundAirport+'-sky'
+        self.pv(payload_session_json)
 
         # Stringify payload
         payload_session_string = ""
@@ -96,6 +99,9 @@ class SkyScanner:
         # Get new session
         self.pv("Creating session...")
         while True:
+            if not(testApi):
+                output['body'] = payload_session_json
+                break
             resSessionKey = requests.request("POST", url=url_session, data=payload_session_string, headers=self.programParams['sessionHeaders'])
 
             # Check for valid status codes, if found, generate session and store
