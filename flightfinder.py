@@ -65,12 +65,6 @@ class FlightFinder:
 
     def generateRoutes(self):
         routes = []
-        
-        # create log file
-        # with open('./logs/recursion_log.csv', mode='w', newline='') as logCsv:
-        #     logWriter = csv.writer(logCsv, delimiter=',')
-        #     header = ['layer', 'g', 'currentPath','routes']
-        #     logWriter.writerow(header)
             
         self.generateNextRoute([], routes, 0)
 
@@ -79,7 +73,6 @@ class FlightFinder:
             for r in routes:
                 logWriter.writerow(r)
         
-    
     def generateNextRoute(self, cp, routes, index):
 
         for g, group in enumerate(self.cityGroups):
@@ -96,13 +89,6 @@ class FlightFinder:
                     return
                 else:
                     currentPath.append(g)
-            
-            
-
-            # with open('./logs/recursion_log.csv', mode='a', newline='') as logCsv:
-            #     logWriter = csv.writer(logCsv, delimiter=',')
-            #     row = [index, g, currentPath, routes]
-            #     logWriter.writerow(row)
 
             # proceed to next layer if not already on the last layer
             if len(self.cityGroups) - 1 > index:
@@ -124,11 +110,6 @@ class FlightFinder:
         for p in currentPath:
             if x == p:
                 return False
-        return True
-
-    def notLastInGroup(self, groupid):
-        if len(self.cityGroups)-1 == groupid:
-            return False
         return True
 
     # Print debug if verbose
