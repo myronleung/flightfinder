@@ -5,7 +5,7 @@ from skyscanner import SkyScanner
 
 class FlightFinder:
 
-    def __init__(self, sk=SkyScanner(tripParamsFileName='tripParams_test2.json'), verboseLogs=True):
+    def __init__(self, sk=SkyScanner(tripParamsFileName='tripParams.json'), verboseLogs=True):
         # Create params
         self.skyscanner = sk
         self.skyscanner.setPV(verboseLogs)
@@ -100,6 +100,18 @@ class FlightFinder:
 
     def getLegPriceOptionsSessions(self):
         self.pv('Getting price options...')
+        legOptionHeaders = [{
+            'fromGroupName':"",
+            'fromId':"",
+            'fromName':"",
+            'fromDate':"",
+            'toGroupName':"",
+            'toId':"",
+            'toName':"",
+            'toDate':"",
+            'session':""
+        }]
+        self.createLogHeaders('./logs/legOptions_log.csv',legOptionHeaders)
         for l, leg in enumerate(self.legs):
             # get prices for each city group combination
             for lof, legOptionFrom in enumerate(self.cityGroups[leg['from']]['cities']):
@@ -108,18 +120,23 @@ class FlightFinder:
                     # Get Sessions
                     session = self.skyscanner.getSession(legOptionFrom,legOptionTo,leg['fromDate'],leg['toDate'],self.testSessionApi)
                     # add option sessions
-                    self.legOptions.append({
+                    priceOptionSession = {
+                        'fromGroupName':self.cityGroups[leg['from']]['groupLabel'],
                         'fromId':lof,
                         'fromName':legOptionFrom,
-                        'toId':lot,
                         'fromDate':leg['fromDate'],
+                        'toGroupName':self.cityGroups[leg['to']]['groupLabel'],
+                        'toId':lot,
                         'toName':legOptionTo,
                         'toDate':leg['toDate'],
                         'session':session
-                    })
+                    }
+                    self.legOptions.append(priceOptionSession)
+                    self.writeLogRow('./logs/legOptions_log.csv', [priceOptionSession])
+
                     
         # write leg option log
-        self.createLog('./logs/legOptions_log.csv',self.legOptions)
+        # self.createLog('./logs/legOptions_log.csv',self.legOptions)
 
     def getPriceOptions(self, overrideSessionKey = ''):
         self.skyscanner.printOutputFileHeaders()
@@ -127,7 +144,8 @@ class FlightFinder:
             for lo, legOption in enumerate(self.legOptions):
                 print('polling:',legOption['session']['body'])
                 option = self.skyscanner.getPolls(legOption['session']['body'],self.testPollApi)
-                print('option:',option)
+                # print('option:',option)
+                self.skyscanner.setOutputFileName(legOption['fromGroupName']+'-'+legOption['toGroupName']+'.csv')
                 self.skyscanner.printPolls(option['body'])
                 self.priceOptions.append(option['body'])
         else:
@@ -136,6 +154,11 @@ class FlightFinder:
 
         # write price options to file
         # self.createLog('./logs/priceOptions_log.csv',self.priceOptions)
+
+        with open('./logs/done.csv', mode='w', newline='') as logCsv:
+            logWriter = csv.writer(logCsv, delimiter=',')
+            now = datetime. now()
+            logWriter.writerow(['run completed',now])
 
 
     def generateRoutes(self):
@@ -225,3 +248,20 @@ class FlightFinder:
                     for i, k in enumerate(obj):
                         row.append(str(obj[k]))
                     logWriter.writerow(row)
+
+    def createLogHeaders(self,logFileName, objs):
+        with open(logFileName, mode='w', newline='') as logCsv:
+            logWriter=csv.writer(logCsv, delimiter=',')
+            header = []
+            for i, k in enumerate(objs[0]):
+                header.append(k)
+            logWriter.writerow(header)
+
+    def writeLogRow(self, logFileName, objs):
+        with open(logFileName, mode='a', newline='') as logCsv:
+            logWriter=csv.writer(logCsv, delimiter=',')
+            for o, obj in enumerate(objs):
+                row = []
+                for i, k in enumerate(obj):
+                    row.append(str(obj[k]))
+                logWriter.writerow(row)

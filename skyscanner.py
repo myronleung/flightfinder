@@ -198,9 +198,9 @@ class SkyScanner:
         return output
 
     def printOutputFileHeaders(self):
-        with open(self.outputCsvFileName, mode='w', newline = '') as outputCsv:
+        with open(self.outputCsvFileName, mode='a', newline = '') as outputCsv:
             itineraryWriter = csv.writer(outputCsv, delimiter=',')
-            header = ["Itinerary","Pricing Option","Agents","OB Leg","OB Origin","OB Destination","OB Stops","OB Carriers","OB Operating Carriers","OB Departure Time","OB Arrival Time","OB Duration HR","OB Duration MIN","OB Inbound Leg","IB Origin","IB Destination","IB Stops","IB Carriers","IB Operating Carriers","IB Departure Time","IB Arrival TIme","IB Duration HR","IB Duration MIN","Price","Link"]
+            header = ["Itinerary","Pricing Option","Agents","OB Leg","OB Origin","OB Destination","OB Stops","OB Carriers","OB Operating Carriers","OB Departure Time","OB Arrival Time","OB Duration HR","OB Duration MIN","IB Inbound Leg","IB Origin","IB Destination","IB Stops","IB Carriers","IB Operating Carriers","IB Departure Time","IB Arrival TIme","IB Duration HR","IB Duration MIN","Price","Link"]
             itineraryWriter.writerow(header)
             return header
 
@@ -228,7 +228,7 @@ class SkyScanner:
                     option["OB Duration HR"] = int(oleg.Duration / 60)
                     option["OB Duration MIN"] = oleg.Duration % 60
                     if hasattr(i, 'InboundLegId'):
-                        option["OB Inbound Leg"] = i.InboundLegId
+                        option["IB Inbound Leg"] = i.InboundLegId
                         ileg = self.getLeg(data, i.InboundLegId)
                         option["IB Origin"] = self.getPlaces(data, ileg.OriginStation)
                         option["IB Destination"] = self.getPlaces(data, ileg.DestinationStation)
@@ -239,10 +239,24 @@ class SkyScanner:
                         option["IB Arrival TIme"] = ileg.Arrival
                         option["IB Duration HR"] = int(ileg.Duration / 60)
                         option["IB Duration MIN"] = ileg.Duration % 60
+                    else:
+                        option["IB Inbound Leg"] = ""
+                        option["IB Origin"] = ""
+                        option["IB Destination"] = ""
+                        option["IB Stops"] = ""
+                        option["IB Carriers"] = ""
+                        option["IB Operating Carriers"] = ""
+                        option["IB Departure Time"] = ""
+                        option["IB Arrival TIme"] = ""
+                        option["IB Duration HR"] = ""
+                        option["IB Duration MIN"] = ""
                     option["Price"] = po.Price
                     option["Link"] = po.DeeplinkUrl
                     for h in header:
-                        print('printing:',h)
-                        if hasattr(i, h):
-                            row.append(option[h])
+                        row.append(option[h])
+                    print(row)
                     itineraryWriter.writerow(row)
+
+    def setOutputFileName(self, name):
+        self.outputJsonFileName = self.programParams['outputDirectory']+'/'+name
+        self.outputCsvFileName = self.programParams['outputDirectory']+'/'+name

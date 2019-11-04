@@ -181,45 +181,29 @@ def getPrices(outboundAirport, inboundAirport, outboundDates, inboundDates, outp
 
 
 # Outbound Airports
-# outboundAirports = [
-#     "LAX", # Los Angeles
-#     "SFO", # San Francisco
-#     "SEA", # Seattle
-#     "JFK", # NYC
-#     "YVR", # Vancouver
-#     "ORD", # Chicago
-#     "DEN", # Denver
-#     "ATL", # Atlanta
-#     "PDX", # Portland
-#     "SLC", # Salt Lake City
-#     "LAS", # Las Vegas
-#     "IAD", # DC
-#     "DCA", # DC
-#     "PHL", # Philadelphia
-#     "DTW", # Detroit
-#     "LGA" # NYC 
-# ]
+outboundGroup = 'United States'
+outboundAirports = [
+    "LAX", # Los Angeles
+    "SFO", # San Francisco
+    "SEA", # Seattle
+    "JFK", # NYC
+    "YVR", # Vancouver
+    "ORD", # Chicago
+    "DEN", # Denver
+    "ATL", # Atlanta
+    "PDX", # Portland
+    "SLC", # Salt Lake City
+    "LAS", # Las Vegas
+    "IAD", # DC
+    "DCA", # DC
+    "PHL", # Philadelphia
+    "DTW", # Detroit
+    "LGA" # NYC 
+]
 
 # # Inbound Airports
-# inboundAirports = [
-#     "PEK", # Beijing
-#     "CSX", # Changsha
-#     "HKG", # Hong Kong
-#     "PVG", # Shanghai 
-#     "CAN", # Guangdong
-#     "SZX", # Shenzhen
-#     "CTU", # Chengdu
-#     "NRT", # Tokyo
-#     "HND", # Tokyo
-#     "CTS", # Sapporo
-#     "KIX", # Kansai
-#     "FUK", # Kyushu
-#     "OKA", # Okinawa
-#     "ITM", # Osaka
-#     "NGO" # Nagoya
-# ]
-
-outboundAirports = [
+inboundGroup = 'China and Japan'
+inboundAirports = [
     "PEK", # Beijing
     "CSX", # Changsha
     "HKG", # Hong Kong
@@ -227,9 +211,6 @@ outboundAirports = [
     "CAN", # Guangdong
     "SZX", # Shenzhen
     "CTU", # Chengdu
-]
-
-inboundAirports = [
     "NRT", # Tokyo
     "HND", # Tokyo
     "CTS", # Sapporo
@@ -239,6 +220,29 @@ inboundAirports = [
     "ITM", # Osaka
     "NGO" # Nagoya
 ]
+
+# outboundGroup = "China"
+# outboundAirports = [
+#     "PEK", # Beijing
+#     "CSX", # Changsha
+#     "HKG", # Hong Kong
+#     "PVG", # Shanghai 
+#     "CAN", # Guangdong
+#     "SZX", # Shenzhen
+#     "CTU", # Chengdu
+# ]
+
+# inboundGroup = "Japan"
+# inboundAirports = [
+#     "NRT", # Tokyo
+#     "HND", # Tokyo
+#     "CTS", # Sapporo
+#     "KIX", # Kansai
+#     "FUK", # Kyushu
+#     "OKA", # Okinawa
+#     "ITM", # Osaka
+#     "NGO" # Nagoya
+# ]
 
 # Other Params
 outboundDate = "2019-12-20"
@@ -260,10 +264,11 @@ for x, o in enumerate(outboundAirports):
         })
 
 # Create blank file
-with open('output.csv', mode='w', newline='') as outputCSV:
+outputFileName = 'rt_'+outboundGroup+'-'+inboundGroup+'.csv'
+with open(outputFileName, mode='w', newline='') as outputCSV:
     itineraryWriter = csv.writer(outputCSV, delimiter=',')
     header = ["Itinerary","Pricing Option","Agents","OB Leg","OB Origin","OB Destination","OB Stops","OB Carriers","OB Operating Carriers","OB Departure Time","OB Arrival Time","OB Duration HR","OB Duration MIN","OB Inbound Leg","IB Origin","IB Destination","IB Stops","IB Carriers","IB Operating Carriers","IB Departure Time","IB Arrival TIme","IB Duration HR","IB Duration MIN","Price","Link"]
     itineraryWriter.writerow(header)
 
 for r in routeCombinations:
-    getPrices(r["outbound"],r["inbound"], outboundDate, inboundDate,'output.csv','output.json',True)
+    getPrices(r["outbound"],r["inbound"], outboundDate, inboundDate,outputFileName,'output.json',True)

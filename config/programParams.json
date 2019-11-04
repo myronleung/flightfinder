@@ -1,6 +1,6 @@
 {
     "sessionHeaders":{
-        "x-rapidapi-key":"17580d4cf9msh8dd917d5bd4448ep1598cejsn4d622a3587a3",
+        "x-rapidapi-key":"40d2144737msh3ffea0452dfb271p1ea20fjsn6e974c74d0d6",
         "x-rapidapi-host":"skyscanner-skyscanner-flight-search-v1.p.rapidapi.com",
         "content-type":"application/x-www-form-urlencoded"
     },
@@ -8,6 +8,6 @@
     "outputJsonFileName":"output.json",
     "outputCsvFileName":"output.csv",
     "getNewData":"True",
-    "responseSize":1,
+    "responseSize":20,
     "validStatusCodes":[200,201]
 }
